@@ -1,0 +1,10 @@
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\obj\Debug\TrainerFun.csprojResolveAssemblyReference.cache
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\obj\Debug\TrainerFun.FormMain.resources
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\obj\Debug\TrainerFun.csproj.GenerateResource.Cache
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\obj\Debug\TrainerFun.csproj.CoreCompileInputs.cache
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\bin\Debug\Icepop.exe.config
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\bin\Debug\Icepop.exe
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\bin\Debug\Icepop.pdb
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\obj\Debug\Icepop.Properties.Resources.resources
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\obj\Debug\Icepop.exe
+C:\Users\swhite\Desktop\Trainer\TrainerFun\TrainerFun\obj\Debug\Icepop.pdb

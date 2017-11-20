@@ -1,0 +1,10 @@
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\bin\Debug\Freeze-Pop.exe.config
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\bin\Debug\Freeze-Pop.exe
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\bin\Debug\Freeze-Pop.pdb
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\obj\Debug\FreezePop.csprojResolveAssemblyReference.cache
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\obj\Debug\TrainerFun.FormMain.resources
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\obj\Debug\FreezePop.Properties.Resources.resources
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\obj\Debug\FreezePop.csproj.GenerateResource.Cache
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\obj\Debug\FreezePop.csproj.CoreCompileInputs.cache
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\obj\Debug\Freeze-Pop.exe
+C:\Users\swhite\Desktop\Freeze-Pop\TrainerFun\obj\Debug\Freeze-Pop.pdb
