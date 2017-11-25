@@ -118,6 +118,7 @@
       this.textBoxProcName.Name = "textBoxProcName";
       this.textBoxProcName.Size = new System.Drawing.Size(310, 20);
       this.textBoxProcName.TabIndex = 10;
+      this.textBoxProcName.Text = "CheatEngineTest";
       // 
       // label3
       // 

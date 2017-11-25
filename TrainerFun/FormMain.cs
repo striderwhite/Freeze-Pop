@@ -26,26 +26,69 @@ namespace TrainerFun
     Thread FreezeThread = null; //thread that freezes var
     bool runFreezeThread = true;   //ctrl flag for freeze thread
 
+    //===============================================
+    //                  DELEGATES
+    //===============================================
+    delegate String updateLabelDelegate();
 
     //===============================================
     //                  CONST
     //===============================================
-    const int PROCESS_WM_READ = 0x0010;         //read permissions
-    const int PROCESS_VM_WRITE = 0x0020;        //write permissions
-    const int PROCESS_VM_OPERATION = 0x0008;    //operation permissiosn
+    public static uint PROCESS_VM_READ = 0x0010;
+    public static uint PROCESS_VM_WRITE = 0x0020;
+    public static uint PROCESS_VM_OPERATION = 0x0008;
+    public static uint PAGE_READWRITE = 0x0004;
+
 
     //===============================================
     //                  PINVOKE
     //===============================================
-    [DllImport("kernel32.dll")]
-    public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 
     [DllImport("kernel32.dll")]
-    public static extern bool ReadProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
+    static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
 
     [DllImport("kernel32.dll", SetLastError = true)]
-    static extern bool WriteProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesWritten);
+    static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out int lpNumberOfBytesWritten);
 
+    [DllImport("kernel32.dll")]
+    public static extern Int32 CloseHandle(IntPtr hProcess);
+
+    //[DllImport("kernel32.dll")]
+    //public static extern IntPtr OpenProcess(UInt32 dwAccess, bool inherit, int pid);
+
+    ////[DllImport("kernel32.dll")]
+    ////public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
+    //[DllImport("kernel32.dll")]
+    //public static extern bool ReadProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
+
+    ////[DllImport("kernel32.dll", SetLastError = true)]
+    ////static extern bool WriteProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesWritten);
+
+    //[DllImport("kernel32.dll")]
+    //public static extern bool WriteProcessMemory(IntPtr hProcess, Int64 lpBaseAddress, [In, Out] byte[] lpBuffer, UInt64 dwSize, out IntPtr lpNumberOfBytesWritten);
+
+    //[DllImport("kernel32.dll", SetLastError = true)]
+    //public static extern bool VirtualProtectEx(IntPtr hProcess, IntPtr lpAddress, UInt32 dwSize, uint flNewProtect, out uint lpflOldProtect);
+
+    //===============================================
+    //                  FLAGS
+    //===============================================
+
+    [Flags]
+    public enum ProcessAccessFlags : uint
+    {
+      All = 0x001F0FFF,
+      Terminate = 0x00000001,
+      CreateThread = 0x00000002,
+      VMOperation = 0x00000008,
+      VMRead = 0x00000010,
+      VMWrite = 0x00000020,
+      DupHandle = 0x00000040,
+      SetInformation = 0x00000200,
+      QueryInformation = 0x00000400,
+      Synchronize = 0x00100000
+    }
 
     #region HELPERS
     /// <summary>
@@ -55,10 +98,20 @@ namespace TrainerFun
     {
       _procList = new List<Process>();
       listViewProc.Items.Clear();
-      Process.GetProcesses().ToList().ForEach(p =>{
-        _procList.Add(p);
-        listViewProc.Items.Add(new ListViewItem(new String[] {p.ProcessName }));
-      });
+      Process.GetProcesses().ToList().ForEach(p =>{_procList.Add(p);});
+      _procList.Sort((a, b) => a.ProcessName.CompareTo(b.ProcessName));
+      _procList.ForEach(p => listViewProc.Items.Add(new ListViewItem(new String[] { p.ProcessName }))); 
+    }
+
+    public static void WriteMem(Process p, int address, long v)
+    {
+      var hProc = OpenProcess(ProcessAccessFlags.All, false, (int)p.Id);
+      var val = new byte[] { (byte)v };
+
+      int wtf = 0;
+      WriteProcessMemory(hProc, new IntPtr(address), val, (UInt32)val.LongLength, out wtf);
+
+      CloseHandle(hProc);
     }
 
     #endregion
@@ -87,8 +140,9 @@ namespace TrainerFun
     {
       try
       {
-        proc = Process.GetProcessesByName(textBoxProcName.Text)[0];
-        procHdl = OpenProcess(PROCESS_WM_READ, false, proc.Id);
+        //proc = Process.GetProcessesByName(textBoxProcName.Text)[0];
+        //procHdl = OpenProcess(PROCESS_WM_READ, false, proc.Id);
+        //procHdl = OpenProcess(PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, false, proc.Id);
 
         if (proc == null || textBoxProcName.Text == ""){ throw new Exception("Failed to attach to process");}
       }
@@ -118,19 +172,25 @@ namespace TrainerFun
 
     private void FreezerThread()
     {
+      //labelAttach.Text = "Freeze Thread Start!";
+      //labelAttach.BackColor = Color.LightBlue;
       //vars
-      int bytesWritten = 0; //tells us how much the operation wrote
+      //IntPtr bytesWritten = (IntPtr)0; //tells us how much the operation wrote
       //byte[] buffer = Encoding.Unicode.GetBytes("Hello World!\0"); // '\0' marks the end of string
-      byte[] buffer = BitConverter.GetBytes(int.Parse(textBoxAddrValueToForce.Text));
+      //byte[] buffer = BitConverter.GetBytes(int.Parse(textBoxAddrValueToForce.Text));
+      //IntPtr address = (IntPtr)0x036B43EC;
+      ///Console.WriteLine("Value in buffer: " + buffer.ToString());
+
+      var proc = Process.GetProcessesByName(textBoxProcName.Text).FirstOrDefault();
 
       while (runFreezeThread)
       {
-        //perform write
-        WriteProcessMemory((int)procHdl, int.Parse(textBoxAddr.Text, NumberStyles.HexNumber), buffer, buffer.Length, ref bytesWritten);
-        //WriteProcessMemory((int)processHandle, 0x0046A3B8, buffer, buffer.Length, ref bytesWritten);
 
+
+        WriteMem(proc, 0x036B43EC, 99);
+        //Console.WriteLine("Wrote " + bytesWritten + " bytes");
         //don't pin a core
-        Thread.Sleep(1);
+        Thread.Sleep(25);
       }
     }
     #endregion
