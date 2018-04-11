@@ -22,14 +22,11 @@ namespace TrainerFun
     //===============================================
     List<Process> _procList;    //list of procs
     Process proc = null;        //proc we want to attach to
-    IntPtr procHdl;             //ptr to proc
+    IntPtr hProc;             //ptr to proc
     Thread FreezeThread = null; //thread that freezes var
     bool runFreezeThread = true;   //ctrl flag for freeze thread
+    bool attached = false;      //flag if we are attached to proc
 
-    //===============================================
-    //                  DELEGATES
-    //===============================================
-    delegate String updateLabelDelegate();
 
     //===============================================
     //                  CONST
@@ -103,15 +100,12 @@ namespace TrainerFun
       _procList.ForEach(p => listViewProc.Items.Add(new ListViewItem(new String[] { p.ProcessName }))); 
     }
 
-    public static void WriteMem(Process p, int address, long v)
+    public static int WriteMem(IntPtr hProc, IntPtr address, long v)
     {
-      var hProc = OpenProcess(ProcessAccessFlags.All, false, (int)p.Id);
       var val = new byte[] { (byte)v };
-
-      int wtf = 0;
-      WriteProcessMemory(hProc, new IntPtr(address), val, (UInt32)val.LongLength, out wtf);
-
-      CloseHandle(hProc);
+      int bytesWritten = 0;
+      WriteProcessMemory(hProc, address, val, (UInt32)val.LongLength, out bytesWritten);
+      return bytesWritten;
     }
 
     #endregion
@@ -140,10 +134,9 @@ namespace TrainerFun
     {
       try
       {
-        //proc = Process.GetProcessesByName(textBoxProcName.Text)[0];
-        //procHdl = OpenProcess(PROCESS_WM_READ, false, proc.Id);
-        //procHdl = OpenProcess(PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, false, proc.Id);
-
+        attached = false;
+        proc = Process.GetProcessesByName(textBoxProcName.Text).FirstOrDefault(); //process object
+        hProc = OpenProcess(ProcessAccessFlags.All, false, (int)proc.Id);         //process handle
         if (proc == null || textBoxProcName.Text == ""){ throw new Exception("Failed to attach to process");}
       }
       catch(Exception ex)
@@ -152,15 +145,25 @@ namespace TrainerFun
         MessageBox.Show("Failed to attach to process due to: " + ex.Message, "Failed to attach to process");
         return;
       }
-
+      attached = true;
       labelAttach.BackColor = Color.LightGreen;
       labelAttach.Text = "Attached to " + proc.ProcessName.ToString();
-
     }
 
+    /// <summary>
+    /// Create a new thread that continuously writes to the address with the specified value
+    /// Kills any other thread
+    /// Error if not attached to any processes
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void buttonFreeze_Click(object sender, EventArgs e)
     {
-      //create a new thread that continuously writes to the address with the specified value
+      if (!attached){
+        MessageBox.Show("Attach to a process before freezing", "Not attached to process");
+        return;
+      }
+      //kill any existing processes
       if(FreezeThread != null)
       {
         runFreezeThread = false;
@@ -168,30 +171,27 @@ namespace TrainerFun
       }
       FreezeThread = new Thread(FreezerThread) { IsBackground = true };
       FreezeThread.Start();
+      progressBarFreezing.Style = ProgressBarStyle.Marquee;
+      progressBarFreezing.MarqueeAnimationSpeed = 30;
+      //MessageBox.Show("FreezeThread is alive and not null: " + FreezeThread.IsAlive);
     }
 
     private void FreezerThread()
     {
-      //labelAttach.Text = "Freeze Thread Start!";
-      //labelAttach.BackColor = Color.LightBlue;
-      //vars
-      //IntPtr bytesWritten = (IntPtr)0; //tells us how much the operation wrote
-      //byte[] buffer = Encoding.Unicode.GetBytes("Hello World!\0"); // '\0' marks the end of string
-      //byte[] buffer = BitConverter.GetBytes(int.Parse(textBoxAddrValueToForce.Text));
-      //IntPtr address = (IntPtr)0x036B43EC;
-      ///Console.WriteLine("Value in buffer: " + buffer.ToString());
-
-      var proc = Process.GetProcessesByName(textBoxProcName.Text).FirstOrDefault();
+      //TODO: catch exceptions and field validation
+      IntPtr address = new IntPtr(int.Parse(textBoxAddr.Text,System.Globalization.NumberStyles.HexNumber)); //Address to modify
+      int value = int.Parse(textBoxAddrValueToForce.Text);  //TODO parse from textbox
+      int bytesWritten = 0;
+      runFreezeThread = true;
 
       while (runFreezeThread)
       {
-
-
-        WriteMem(proc, 0x036B43EC, 99);
-        //Console.WriteLine("Wrote " + bytesWritten + " bytes");
-        //don't pin a core
-        Thread.Sleep(25);
+        bytesWritten = WriteMem(hProc, address, value);
+        //Console.WriteLine("Wrote " + bytesWritten + " bytes"); 
+        Thread.Sleep(1); //Dont pin
       }
+      attached = false;
+      CloseHandle(hProc);
     }
     #endregion
 
@@ -208,7 +208,19 @@ namespace TrainerFun
     {
       RefreshProcList();
     }
-
     #endregion
+
+    private void buttonStopFreeze_Click(object sender, EventArgs e)
+    {
+      runFreezeThread = false;
+      while (FreezeThread.IsAlive)
+      {
+        Thread.Sleep(50); //Hold on until we know its dead
+      }
+      labelAttach.BackColor = Color.Red;
+      labelAttach.Text = "Unattached";
+      progressBarFreezing.Style = ProgressBarStyle.Continuous;
+      progressBarFreezing.MarqueeAnimationSpeed = 0;
+    }
   }
 }

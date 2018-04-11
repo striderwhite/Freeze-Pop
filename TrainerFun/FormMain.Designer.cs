@@ -54,7 +54,7 @@
       // 
       this.buttonAttach.Location = new System.Drawing.Point(8, 221);
       this.buttonAttach.Name = "buttonAttach";
-      this.buttonAttach.Size = new System.Drawing.Size(75, 23);
+      this.buttonAttach.Size = new System.Drawing.Size(310, 23);
       this.buttonAttach.TabIndex = 3;
       this.buttonAttach.Text = "Attach";
       this.buttonAttach.UseVisualStyleBackColor = true;
@@ -71,9 +71,9 @@
       // 
       // buttonRefresh
       // 
-      this.buttonRefresh.Location = new System.Drawing.Point(89, 221);
+      this.buttonRefresh.Location = new System.Drawing.Point(6, 148);
       this.buttonRefresh.Name = "buttonRefresh";
-      this.buttonRefresh.Size = new System.Drawing.Size(75, 23);
+      this.buttonRefresh.Size = new System.Drawing.Size(315, 23);
       this.buttonRefresh.TabIndex = 6;
       this.buttonRefresh.Text = "Refresh";
       this.buttonRefresh.UseVisualStyleBackColor = true;
@@ -99,9 +99,9 @@
       // 
       this.listViewProc.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeadeProdName});
-      this.listViewProc.Location = new System.Drawing.Point(6, 19);
+      this.listViewProc.Location = new System.Drawing.Point(9, 19);
       this.listViewProc.Name = "listViewProc";
-      this.listViewProc.Size = new System.Drawing.Size(312, 152);
+      this.listViewProc.Size = new System.Drawing.Size(312, 123);
       this.listViewProc.TabIndex = 9;
       this.listViewProc.UseCompatibleStateImageBehavior = false;
       this.listViewProc.View = System.Windows.Forms.View.Details;
@@ -118,7 +118,7 @@
       this.textBoxProcName.Name = "textBoxProcName";
       this.textBoxProcName.Size = new System.Drawing.Size(310, 20);
       this.textBoxProcName.TabIndex = 10;
-      this.textBoxProcName.Text = "CheatEngineTest";
+      this.textBoxProcName.Text = "halo2";
       // 
       // label3
       // 
@@ -192,6 +192,7 @@
       this.buttonStopFreeze.TabIndex = 16;
       this.buttonStopFreeze.Text = "Stop";
       this.buttonStopFreeze.UseVisualStyleBackColor = true;
+      this.buttonStopFreeze.Click += new System.EventHandler(this.buttonStopFreeze_Click);
       // 
       // buttonFreeze
       // 
@@ -217,7 +218,7 @@
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(345, 392);
+      this.ClientSize = new System.Drawing.Size(344, 391);
       this.Controls.Add(this.groupBox1);
       this.Controls.Add(this.groupBoxProcesses);
       this.Controls.Add(this.labelAttach);
